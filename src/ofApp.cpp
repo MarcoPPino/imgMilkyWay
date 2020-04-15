@@ -24,6 +24,8 @@ void ofApp::setup(){
     gui->setTheme(new ofxDatGuiThemeSmoke());
     buttonOpen = gui->addButton("Load Image");
     gui->addBreak()->setHeight(20.0f);
+    vector<string> options = {"Brightness", "Lightness", "Saturation"};
+    elevateDropDown = gui->addDropdown("Elevation mode: " , options);
     depthSlider = gui->addSlider("Depth", 0, 1000, depthSliderVal);
     colorPickBg = gui->addColorPicker("BackgroundColor", ofColor::fromHex(0x000000));
     gui->addBreak()->setHeight(20.0f);
@@ -37,9 +39,8 @@ void ofApp::setup(){
     
     gui->addFooter();
     
-    
-    
     buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
+    elevateDropDown->onDropdownEvent(this, &ofApp::onDropdownEvent);
     colorPickBg->onColorPickerEvent(this, &ofApp::onColorPickerEvent);
     depthSlider->onSliderEvent(this, &ofApp::onSliderEvent);
     
@@ -132,8 +133,7 @@ void ofApp::createMesh(){
     for(int x = 0; x < w; x++){
         for(int y = 0; y < h; y++){
             ofColor clr = img.getColor(x, y);
-            float intense = clr.getLightness();
-            float saturation = clr.getSaturation();
+            float saturation = clr.getBrightness();
             float z = ofMap(saturation, 0, 255, 0, depthSliderVal);
             ofVec3f pos(x, y, z);
             mesh.addVertex(pos);
@@ -145,12 +145,21 @@ void ofApp::createMesh(){
 
 //--------------------------------------------------------------
 void ofApp::updateMesh(){
+    float elevateValue;
     for (int i=0; i<numVerts; ++i) {
         ofVec3f vert = mesh.getVertex(i);
         ofColor clr = mesh.getColor(i);
         
-        float saturation = clr.getSaturation();
-        float z = ofMap(saturation, 0, 255, 0, depthSliderVal);
+        if(dropdownVal == 0){
+            elevateValue = clr.getBrightness();
+        }
+        if(dropdownVal == 1){
+            elevateValue = clr.getLightness();
+        }
+        if(dropdownVal == 2){
+            elevateValue = clr.getSaturation();
+        }
+        float z = ofMap(elevateValue, 0, 255, 0, depthSliderVal);
 
         vert.x = vert.x;
         vert.y = vert.y;
@@ -159,7 +168,7 @@ void ofApp::updateMesh(){
     }
 }
 
-//--------------------------------------------------------------
+//----------------------UI EVENTS----------------------------------------
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
     ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a picture");
     if (openFileResult.bSuccess){
@@ -170,17 +179,19 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
     }
 }
 
-void ofApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e){
-    bgColor = e.color;
+void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e){
+    dropdownVal =  e.child;
+    cout << dropdownVal << "\n" << endl;
+    updateMesh();
 }
 
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e){
     depthSliderVal = depthSlider->getValue();
     updateMesh();
+}
 
-
-    
-    
+void ofApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e){
+    bgColor = e.color;
 }
 
 //--------------------------------------------------------------

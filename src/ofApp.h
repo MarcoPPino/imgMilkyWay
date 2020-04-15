@@ -18,8 +18,9 @@ class ofApp : public ofBaseApp{
         void processOpenFileSelection(ofFileDialogResult openFileResult);
         
         void onButtonEvent(ofxDatGuiButtonEvent e);
-        void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
+        void onDropdownEvent(ofxDatGuiDropdownEvent e);
         void onSliderEvent(ofxDatGuiSliderEvent e);
+        void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
         
     
     string filename;
@@ -29,6 +30,7 @@ class ofApp : public ofBaseApp{
     ofEasyCam easyCam;
     
     int numVerts;
+    int dropdownVal = 2;
     
     
     
@@ -47,11 +49,14 @@ class ofApp : public ofBaseApp{
     
     
     ofxDatGui* gui = new ofxDatGui(0, 0);
-    ofxDatGuiFolder* infoFolder;
-    ofxDatGuiButton* buttonOpen;
-    ofxDatGuiColorPicker* colorPickBg;
-    ofxDatGuiSlider* depthSlider;
     
+    ofxDatGuiButton* buttonOpen;
+    
+    ofxDatGuiDropdown* elevateDropDown;
+    ofxDatGuiSlider* depthSlider;
+    ofxDatGuiColorPicker* colorPickBg;
+    
+    ofxDatGuiFolder* infoFolder;
     ofxDatGuiLabel* labelImg;
     ofxDatGuiLabel* labelImgSize;
     ofxDatGuiLabel* labelZ;
