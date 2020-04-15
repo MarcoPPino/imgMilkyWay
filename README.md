@@ -10,3 +10,6 @@ todo:
 - more fancy pancy visual stuff
 - Free camera movement 
 - automated camera movement & automated framesaving. ffmpeg will do the rest (maybe threaded?)
+
+
+imagesource, inspiration & help https://www.graffiti-reworks.com/ thanks! <3
