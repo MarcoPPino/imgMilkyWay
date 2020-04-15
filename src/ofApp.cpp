@@ -27,6 +27,7 @@ void ofApp::setup(){
     colorPickBg = gui->addColorPicker("BackgroundColor", ofColor::fromHex(0x000000));
     gui->addFRM();
     gui->onButtonEvent(this, &ofApp::onButtonEvent);
+    colorPickBg->onColorPickerEvent(this, &ofApp::onColorPickerEvent);
 }
 
 
@@ -57,7 +58,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(0);
+    ofBackground(bgColor);
     int maxPointSize = 10;
     int maxZoom = 200;
     int minZoom = 3500;
@@ -67,7 +68,7 @@ void ofApp::draw(){
         string saveFile = filename + "_" + "Zoom_" + ofToString(easyCam.getDistance()) + "_" + "Point_" + ofToString(pointSize) + "_" + ofToString(maxPointSize) + ".jpg";
         
         largeOffscreenImage.begin();
-            ofClear(0, 0, 0, 0);
+            ofClear(bgColor);
             easyCam.begin();
                 glPointSize(pointSize*4);
                 ofPushMatrix();
@@ -139,6 +140,10 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
     }else {
         ofLogVerbose("User hit cancel");
     }
+}
+
+void ofApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e){
+    bgColor = e.color;
 }
 
 //--------------------------------------------------------------

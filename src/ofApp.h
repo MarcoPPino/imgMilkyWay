@@ -15,6 +15,7 @@ class ofApp : public ofBaseApp{
     
     
         void onButtonEvent(ofxDatGuiButtonEvent e);
+        void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
         void createMesh();
         void processOpenFileSelection(ofFileDialogResult openFileResult);
         
@@ -42,6 +43,8 @@ class ofApp : public ofBaseApp{
     ofxDatGui* gui = new ofxDatGui(0, 0);
     ofxDatGuiButton* buttonOpen;
     ofxDatGuiColorPicker* colorPickBg;
+    
+    ofColor bgColor;
     
     
     
