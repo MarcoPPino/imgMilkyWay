@@ -13,11 +13,12 @@ class ofApp : public ofBaseApp{
 		void keyPressed(int key);
 		void keyReleased(int key);
     
-    
-        void onButtonEvent(ofxDatGuiButtonEvent e);
-        void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
         void createMesh();
         void processOpenFileSelection(ofFileDialogResult openFileResult);
+        
+        void onButtonEvent(ofxDatGuiButtonEvent e);
+        void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
+        void onSliderEvent(ofxDatGuiSliderEvent e);
         
     
     string filename;
@@ -43,8 +44,10 @@ class ofApp : public ofBaseApp{
     ofxDatGui* gui = new ofxDatGui(0, 0);
     ofxDatGuiButton* buttonOpen;
     ofxDatGuiColorPicker* colorPickBg;
+    ofxDatGuiSlider* depthSlider;
     
     ofColor bgColor;
+    int depthSliderVal = 800;
     
     
     

@@ -25,9 +25,16 @@ void ofApp::setup(){
     
     buttonOpen = gui->addButton("Load Picture...");
     colorPickBg = gui->addColorPicker("BackgroundColor", ofColor::fromHex(0x000000));
+    depthSlider = gui->addSlider("Depthslider", 0, 1000, 400);
     gui->addFRM();
-    gui->onButtonEvent(this, &ofApp::onButtonEvent);
+    
+    buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
     colorPickBg->onColorPickerEvent(this, &ofApp::onColorPickerEvent);
+    depthSlider->onSliderEvent(this, &ofApp::onSliderEvent);
+    
+    bgColor = ofColor(0,0,0);
+    
+    
 }
 
 
@@ -43,7 +50,7 @@ void ofApp::createMesh(){
             ofColor clr = img.getColor(x, y);
             float intense = clr.getLightness();
             float saturation = clr.getSaturation();
-            float z = ofMap(saturation, 0, 255, 0, 400);
+            float z = ofMap(saturation, 0, 255, 0, depthSliderVal);
             ofVec3f pos(x, y, z);
             mesh.addVertex(pos);
             mesh.addColor(clr);
@@ -144,6 +151,11 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
 
 void ofApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e){
     bgColor = e.color;
+}
+
+void ofApp::onSliderEvent(ofxDatGuiSliderEvent e){
+    depthSliderVal = depthSlider->getValue();
+    createMesh();
 }
 
 //--------------------------------------------------------------
