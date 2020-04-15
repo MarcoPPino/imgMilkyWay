@@ -5,8 +5,8 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     ofSetLogLevel(OF_LOG_VERBOSE);
     
-    filename = "t4";
-    img.load(filename + ".jpg");
+    filename = "t4.jpg";
+    img.load(filename);
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
     mesh.enableIndices();
@@ -22,11 +22,22 @@ void ofApp::setup(){
     //GUI------------------------------------------------------
     
     gui->setTheme(new ofxDatGuiThemeSmoke());
-    
-    buttonOpen = gui->addButton("Load Picture...");
+    buttonOpen = gui->addButton("Load Image");
+    gui->addBreak()->setHeight(20.0f);
     depthSlider = gui->addSlider("Depth", 0, 1000, depthSliderVal);
     colorPickBg = gui->addColorPicker("BackgroundColor", ofColor::fromHex(0x000000));
-    gui->addFRM();
+    gui->addBreak()->setHeight(20.0f);
+    
+    infoFolder = gui->addFolder("Infos", ofColor::white);
+    labelImg = infoFolder->addLabel("Filename: " + ofToString(filename));
+    labelImgSize = infoFolder->addLabel("ImageSize: " + ofToString(img.getWidth()) + " x " + ofToString(img.getHeight()));
+    labelNum = infoFolder->addLabel("Number of Points: " + ofToString(numVerts));
+    labelZ = infoFolder->addLabel("Zoom: ");
+    infoFolder->addFRM();
+    
+    gui->addFooter();
+    
+    
     
     buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
     colorPickBg->onColorPickerEvent(this, &ofApp::onColorPickerEvent);
@@ -39,7 +50,7 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
+    labelZ->setLabel("Current Zoom: " + ofToString(easyCam.getDistance()));
 }
 
 //--------------------------------------------------------------
@@ -192,6 +203,11 @@ void ofApp::processOpenFileSelection(ofFileDialogResult openFileResult){
             createMesh();
         }
     }
+    
+    labelImg->setLabel("Filename: " + ofToString(filename));
+    labelImgSize->setLabel("ImageSize: " + ofToString(img.getWidth()) + " x " + ofToString(img.getHeight()));
+    labelNum->setLabel("Number of Points: " + ofToString(numVerts));
+    
 }
 
 

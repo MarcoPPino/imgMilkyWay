@@ -47,9 +47,15 @@ class ofApp : public ofBaseApp{
     
     
     ofxDatGui* gui = new ofxDatGui(0, 0);
+    ofxDatGuiFolder* infoFolder;
     ofxDatGuiButton* buttonOpen;
     ofxDatGuiColorPicker* colorPickBg;
     ofxDatGuiSlider* depthSlider;
+    
+    ofxDatGuiLabel* labelImg;
+    ofxDatGuiLabel* labelImgSize;
+    ofxDatGuiLabel* labelZ;
+    ofxDatGuiLabel* labelNum;
     
     ofColor bgColor;
     int depthSliderVal = 800;
