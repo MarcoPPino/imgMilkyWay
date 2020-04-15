@@ -8,8 +8,8 @@ void ofApp::setup(){
     filename = "t4";
     img.load(filename + ".jpg");
     
-    mesh.enableIndices();
     mesh.setMode(OF_PRIMITIVE_POINTS);
+    mesh.enableIndices();
     mesh.enableColors();
     
     createMesh();
@@ -24,8 +24,8 @@ void ofApp::setup(){
     gui->setTheme(new ofxDatGuiThemeSmoke());
     
     buttonOpen = gui->addButton("Load Picture...");
+    depthSlider = gui->addSlider("Depth", 0, 1000, depthSliderVal);
     colorPickBg = gui->addColorPicker("BackgroundColor", ofColor::fromHex(0x000000));
-    depthSlider = gui->addSlider("Depthslider", 0, 1000, 400);
     gui->addFRM();
     
     buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
@@ -33,30 +33,9 @@ void ofApp::setup(){
     depthSlider->onSliderEvent(this, &ofApp::onSliderEvent);
     
     bgColor = ofColor(0,0,0);
-    
-    
+
 }
 
-
-
-//--------------------------------------------------------------
-void ofApp::createMesh(){
-    mesh.clear();
-    int w = img.getWidth();
-    int h = img.getHeight();
-
-    for(int x = 0; x < w; x++){
-        for(int y = 0; y < h; y++){
-            ofColor clr = img.getColor(x, y);
-            float intense = clr.getLightness();
-            float saturation = clr.getSaturation();
-            float z = ofMap(saturation, 0, 255, 0, depthSliderVal);
-            ofVec3f pos(x, y, z);
-            mesh.addVertex(pos);
-            mesh.addColor(clr);
-        }
-    }
-}
 
 //--------------------------------------------------------------
 void ofApp::update(){
@@ -73,7 +52,6 @@ void ofApp::draw(){
     if(record){
 //        pointSize = ofMap(easyCam.getDistance(), 0, 3500, maxPointSize, 1, true);
         string saveFile = filename + "_" + "Zoom_" + ofToString(easyCam.getDistance()) + "_" + "Point_" + ofToString(pointSize) + "_" + ofToString(maxPointSize) + ".jpg";
-        
         largeOffscreenImage.begin();
             ofClear(bgColor);
             easyCam.begin();
@@ -134,9 +112,41 @@ void ofApp::keyReleased(int key){
     }
 }
 
+//--------------------------------------------------------------
+void ofApp::createMesh(){
+    mesh.clear();
+    int w = img.getWidth();
+    int h = img.getHeight();
 
+    for(int x = 0; x < w; x++){
+        for(int y = 0; y < h; y++){
+            ofColor clr = img.getColor(x, y);
+            float intense = clr.getLightness();
+            float saturation = clr.getSaturation();
+            float z = ofMap(saturation, 0, 255, 0, depthSliderVal);
+            ofVec3f pos(x, y, z);
+            mesh.addVertex(pos);
+            mesh.addColor(clr);
+        }
+    }
+    numVerts = mesh.getNumVertices();
+}
 
+//--------------------------------------------------------------
+void ofApp::updateMesh(){
+    for (int i=0; i<numVerts; ++i) {
+        ofVec3f vert = mesh.getVertex(i);
+        ofColor clr = mesh.getColor(i);
+        
+        float saturation = clr.getSaturation();
+        float z = ofMap(saturation, 0, 255, 0, depthSliderVal);
 
+        vert.x = vert.x;
+        vert.y = vert.y;
+        vert.z = z;
+        mesh.setVertex(i, vert);
+    }
+}
 
 //--------------------------------------------------------------
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
@@ -155,7 +165,11 @@ void ofApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e){
 
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e){
     depthSliderVal = depthSlider->getValue();
-    createMesh();
+    updateMesh();
+
+
+    
+    
 }
 
 //--------------------------------------------------------------
@@ -179,4 +193,6 @@ void ofApp::processOpenFileSelection(ofFileDialogResult openFileResult){
         }
     }
 }
+
+
 

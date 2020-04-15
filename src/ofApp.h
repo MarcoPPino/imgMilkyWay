@@ -14,6 +14,7 @@ class ofApp : public ofBaseApp{
 		void keyReleased(int key);
     
         void createMesh();
+        void updateMesh();
         void processOpenFileSelection(ofFileDialogResult openFileResult);
         
         void onButtonEvent(ofxDatGuiButtonEvent e);
@@ -26,6 +27,10 @@ class ofApp : public ofBaseApp{
     ofImage img;
     ofMesh mesh;
     ofEasyCam easyCam;
+    
+    int numVerts;
+    
+    
     
     //save old
     bool record = false;
