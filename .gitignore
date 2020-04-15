@@ -1,0 +1,9 @@
+**/Exports
+**/druck
+*.app
+*.img
+*.jpeg
+*.jpg
+*.png
+
+!ofxbraitsch
