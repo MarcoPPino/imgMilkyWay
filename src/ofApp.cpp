@@ -5,7 +5,8 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     ofSetLogLevel(OF_LOG_VERBOSE);
     
-    filename = "t4.jpg";
+    
+    filename = "t1_2.jpg";
     img.load(filename);
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
@@ -24,11 +25,13 @@ void ofApp::setup(){
     gui->setTheme(new ofxDatGuiThemeSmoke());
     buttonOpen = gui->addButton("Load Image");
     gui->addBreak()->setHeight(20.0f);
-    vector<string> options = {"Brightness", "Lightness", "Saturation"};
-    elevateDropDown = gui->addDropdown("Elevation mode: " , options);
+    elevateDropDown = gui->addDropdown("Elevation mode: " , ElevateOptions);
+    modeDropdown = gui->addDropdown("Point Connection mode: " , modeOptions);
     depthSlider = gui->addSlider("Depth", 0, 1000, depthSliderVal);
+    pointSlider = gui->addSlider("Pointsize", 0, 10, pointSliderVal);
     colorPickBg = gui->addColorPicker("BackgroundColor", ofColor::fromHex(0x000000));
     gui->addBreak()->setHeight(20.0f);
+    
     
     infoFolder = gui->addFolder("Infos", ofColor::white);
     labelImg = infoFolder->addLabel("Filename: " + ofToString(filename));
@@ -37,12 +40,17 @@ void ofApp::setup(){
     labelZ = infoFolder->addLabel("Zoom: ");
     infoFolder->addFRM();
     
+    gui->addBreak()->setHeight(100.0f);
+    buttonSave = gui->addButton("Save Image");
     gui->addFooter();
     
     buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
+    buttonSave->onButtonEvent(this, &ofApp::onButtonEvent);
     elevateDropDown->onDropdownEvent(this, &ofApp::onDropdownEvent);
+    modeDropdown->onDropdownEvent(this, &ofApp::onDropdownEvent);
     colorPickBg->onColorPickerEvent(this, &ofApp::onColorPickerEvent);
     depthSlider->onSliderEvent(this, &ofApp::onSliderEvent);
+    pointSlider->onSliderEvent(this, &ofApp::onSliderEvent);
     
     bgColor = ofColor(0,0,0);
 
@@ -57,17 +65,14 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(bgColor);
-    int maxPointSize = 10;
-    int maxZoom = 200;
-    int minZoom = 3500;
     
     if(record){
 //        pointSize = ofMap(easyCam.getDistance(), 0, 3500, maxPointSize, 1, true);
-        string saveFile = filename + "_" + "Zoom_" + ofToString(easyCam.getDistance()) + "_" + "Point_" + ofToString(pointSize) + "_" + ofToString(maxPointSize) + ".jpg";
+        string saveFile = filename + "_" + "Zoom_" + ofToString(easyCam.getDistance()) + "_" + "Point_" + ofToString(pointSliderVal) + ".jpg";
         largeOffscreenImage.begin();
             ofClear(bgColor);
             easyCam.begin();
-                glPointSize(pointSize*4);
+                glPointSize(pointSliderVal*8);
                 ofPushMatrix();
                 ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
                 mesh.draw();
@@ -80,15 +85,15 @@ void ofApp::draw(){
         ofSaveImage(p, "exports/" + saveFile);
         cout << "saved file: " << saveFile <<"\n" << endl;
         
-        ofRectangle bounds(0,0, ofGetWidth(), ofGetHeight());
+        ofRectangle bounds(0, 0, ofGetWidth(), ofGetHeight());
         ofRectangle target(0, 0, ofscreenW, ofscreenW);
         target.scaleTo(bounds);
+        record = false;
     
     }else{
         easyCam.begin();
-        pointSize = ofscreenH / img.getWidth();
 //        pointSize = ofMap(easyCam.getDistance(), maxZoom, minZoom, maxPointSize, 1, true);
-        glPointSize(1);
+        glPointSize(pointSliderVal);
             ofPushMatrix();
                 ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
                 mesh.draw();
@@ -110,18 +115,12 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-        if (key == 's'){
-         record = true;
-     }
-    
+
 }
 
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-    if (key == 's'){
-        record = false;
-    }
 }
 
 //--------------------------------------------------------------
@@ -170,24 +169,61 @@ void ofApp::updateMesh(){
 
 //----------------------UI EVENTS----------------------------------------
 void ofApp::onButtonEvent(ofxDatGuiButtonEvent e){
-    ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a picture");
-    if (openFileResult.bSuccess){
-        ofLogVerbose("User selected a file");
-        processOpenFileSelection(openFileResult);
-    }else {
-        ofLogVerbose("User hit cancel");
+    if(e.target == buttonOpen){
+        ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a picture");
+        if (openFileResult.bSuccess){
+            ofLogVerbose("User selected a file");
+            processOpenFileSelection(openFileResult);
+        }else {
+            ofLogVerbose("User hit cancel");
+        }
+    }
+    if(e.target == buttonSave){
+        record = true;
     }
 }
 
 void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e){
-    dropdownVal =  e.child;
-    cout << dropdownVal << "\n" << endl;
-    updateMesh();
+    if(e.target == elevateDropDown){
+        dropdownVal =  e.child;
+        cout << dropdownVal << "\n" << endl;
+        updateMesh();
+    }
+    if(e.target == modeDropdown){
+        if(e.child == 0){
+            mesh.setMode(OF_PRIMITIVE_POINTS);
+        }
+        if(e.child == 1){
+            mesh.setMode(OF_PRIMITIVE_TRIANGLES);
+        }
+        if(e.child == 2){
+            mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+        }
+        if(e.child == 3){
+            mesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
+        }
+        if(e.child == 4){
+            mesh.setMode(OF_PRIMITIVE_LINES);
+        }
+        if(e.child == 5){
+            mesh.setMode(OF_PRIMITIVE_LINE_STRIP);
+        }
+        if(e.child == 6){
+            mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
+        }
+    }
 }
 
+vector<string> modeOptions = {"Points","Triangles", "Triangle Strip", "Triangle Fan", "Lines", "Line Strip", "Line Loop"};
+
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e){
+    if(e.target == depthSlider){
     depthSliderVal = depthSlider->getValue();
     updateMesh();
+    }
+    if(e.target == pointSlider){
+        pointSliderVal = pointSlider->getValue();
+    }
 }
 
 void ofApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e){

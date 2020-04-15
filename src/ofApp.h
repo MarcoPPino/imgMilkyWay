@@ -21,7 +21,31 @@ class ofApp : public ofBaseApp{
         void onDropdownEvent(ofxDatGuiDropdownEvent e);
         void onSliderEvent(ofxDatGuiSliderEvent e);
         void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
+    
+    
+    ofxDatGui* gui = new ofxDatGui(0, 0);
+    
+    ofxDatGuiButton* buttonOpen;
+    ofxDatGuiButton* buttonSave;
+    
+    ofxDatGuiDropdown* elevateDropDown;
+    ofxDatGuiDropdown* modeDropdown;
+    ofxDatGuiSlider* depthSlider;
+    ofxDatGuiSlider* pointSlider;
+    ofxDatGuiColorPicker* colorPickBg;
+    
+    ofxDatGuiFolder* infoFolder;
+    ofxDatGuiLabel* labelImg;
+    ofxDatGuiLabel* labelImgSize;
+    ofxDatGuiLabel* labelZ;
+    ofxDatGuiLabel* labelNum;
+    
+    vector<string> ElevateOptions = {"Brightness", "Lightness", "Saturation"};
+    vector<string> modeOptions = {"Points", "Triangles", "Triangle Strip", "Triangle Fan - Fucking Slow!", "Lines", "Line Strip", "Line Loop"};
         
+    
+    
+    
     
     string filename;
     
@@ -31,6 +55,7 @@ class ofApp : public ofBaseApp{
     
     int numVerts;
     int dropdownVal = 2;
+    string modeDropdownVal = "OF_PRIMITIVE_TRIANGLE_STRIP";
     
     
     
@@ -45,25 +70,11 @@ class ofApp : public ofBaseApp{
     //-------------------------
     
     // darstelltung
-    int pointSize;
+    int pointSliderVal = 1;
     
-    
-    ofxDatGui* gui = new ofxDatGui(0, 0);
-    
-    ofxDatGuiButton* buttonOpen;
-    
-    ofxDatGuiDropdown* elevateDropDown;
-    ofxDatGuiSlider* depthSlider;
-    ofxDatGuiColorPicker* colorPickBg;
-    
-    ofxDatGuiFolder* infoFolder;
-    ofxDatGuiLabel* labelImg;
-    ofxDatGuiLabel* labelImgSize;
-    ofxDatGuiLabel* labelZ;
-    ofxDatGuiLabel* labelNum;
-    
+
     ofColor bgColor;
-    int depthSliderVal = 800;
+    int depthSliderVal = 400;
     
     
     
