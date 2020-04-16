@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/Pino/Documents/code/OF/apps/visualApps/randomRects_TimPush/imgMilkyWay.xcodeproj">
+      location = "self:">
    </FileRef>
 </Workspace>
