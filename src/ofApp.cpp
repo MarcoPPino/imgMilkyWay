@@ -6,7 +6,7 @@ void ofApp::setup(){
     ofSetLogLevel(OF_LOG_VERBOSE);
     
     
-    filename = "t1_2.jpg";
+    filename = "t4.jpg";
     img.load(filename);
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
@@ -72,7 +72,7 @@ void ofApp::draw(){
         largeOffscreenImage.begin();
             ofClear(bgColor);
             easyCam.begin();
-                glPointSize(pointSliderVal*8);
+                glPointSize(pointSliderVal*10);
                 ofPushMatrix();
                 ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
                 mesh.draw();
