@@ -13,7 +13,7 @@ todo:
 - automated camera movement & automated framesaving. ffmpeg will do the rest (maybe threaded?)
 
 used:
-ofxDatGui - https://github.com/braitsch/ofxDatGui - don't forget to put the ofxbraitsch dir into /bin/data
-File Saving - https://github.com/ofZach/RTP_SFPC_FALL19/tree/master/largeTextureExample
+- ofxDatGui - https://github.com/braitsch/ofxDatGui - don't forget to put the ofxbraitsch dir into /bin/data
+- File Saving - https://github.com/ofZach/RTP_SFPC_FALL19/tree/master/largeTextureExample
 
 imagesource, inspiration & help https://www.graffiti-reworks.com/ thanks! <3
