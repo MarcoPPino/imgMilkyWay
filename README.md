@@ -9,6 +9,7 @@ todo:
 - choose fileFormat ✓
 - choose size of output ✓
 - more fancy pancy visual stuff
+- check lighting - seems like theres a problem
 - Free camera movement ✓
 - automated camera movement & automated framesaving. ffmpeg will do the rest (maybe threaded?)
 
