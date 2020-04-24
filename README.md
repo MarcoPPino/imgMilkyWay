@@ -6,10 +6,10 @@ Saves the manipulated & drawn mesh as a img file, currently in 5000x5000 but sho
 
 todo:
 - LESS MESS!
-- choose fileFormat
-- choose size of output 
+- choose fileFormat ✓
+- choose size of output ✓
 - more fancy pancy visual stuff
-- Free camera movement 
+- Free camera movement ✓
 - automated camera movement & automated framesaving. ffmpeg will do the rest (maybe threaded?)
 
 used:
