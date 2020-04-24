@@ -3,8 +3,6 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetFrameRate(60);
-    ofSetLogLevel(OF_LOG_VERBOSE);
-    
     
     filename = "t4.jpg";
     img.load(filename);
@@ -15,22 +13,17 @@ void ofApp::setup(){
     
     createMesh();
     
-    //SaveFBO stuff -------------------------------------------
-    ofscreenW = 5000;
-    ofscreenH = 5000;
-    largeOffscreenImage.allocate(ofscreenW, ofscreenH, GL_RGBA);
-
     //GUI------------------------------------------------------
     
-    gui->setTheme(new ofxDatGuiThemeSmoke());
     buttonOpen = gui->addButton("Load Image");
-    gui->addBreak()->setHeight(20.0f);
+    gui->addBreak()->setHeight(15.0f);
     elevateDropDown = gui->addDropdown("Elevation mode: " , ElevateOptions);
     modeDropdown = gui->addDropdown("Point Connection mode: " , modeOptions);
+    gui->addBreak()->setHeight(10.0f);
     depthSlider = gui->addSlider("Depth", 0, 1000, depthSliderVal);
     pointSlider = gui->addSlider("Pointsize", 0, 10, pointSliderVal);
     colorPickBg = gui->addColorPicker("BackgroundColor", ofColor::fromHex(0x000000));
-    gui->addBreak()->setHeight(20.0f);
+    gui->addBreak()->setHeight(10.0f);
     
     
     infoFolder = gui->addFolder("Infos", ofColor::white);
@@ -39,10 +32,16 @@ void ofApp::setup(){
     labelNum = infoFolder->addLabel("Number of Points: " + ofToString(numVerts));
     labelZ = infoFolder->addLabel("Zoom: ");
     infoFolder->addFRM();
+    gui->addBreak()->setHeight(15.0f);
     
-    gui->addBreak()->setHeight(100.0f);
+    saveFolder = gui->addFolder("Save Options", ofColor::white);
+    inputWidth = saveFolder->addTextInput("Width", "1920");
+    inputHeight = saveFolder->addTextInput("Height", "1080");
+    toggleJpg = saveFolder->addToggle("Save as JPEG");
+    toggleJpg->setChecked(true);
+    togglePng = saveFolder->addToggle("Save as PNG");
+    toggleSpace = saveFolder->addToggle("Use Spacebar to save");
     buttonSave = gui->addButton("Save Image");
-    gui->addFooter();
     
     buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
     buttonSave->onButtonEvent(this, &ofApp::onButtonEvent);
@@ -53,7 +52,6 @@ void ofApp::setup(){
     pointSlider->onSliderEvent(this, &ofApp::onSliderEvent);
     
     bgColor = ofColor(0,0,0);
-
 }
 
 
@@ -65,34 +63,10 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(bgColor);
-    
     if(record){
-//        pointSize = ofMap(easyCam.getDistance(), 0, 3500, maxPointSize, 1, true);
-        string saveFile = filename + "_" + "Zoom_" + ofToString(easyCam.getDistance()) + "_" + "Point_" + ofToString(pointSliderVal) + ".jpg";
-        largeOffscreenImage.begin();
-            ofClear(bgColor);
-            easyCam.begin();
-                glPointSize(pointSliderVal*10);
-                ofPushMatrix();
-                ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
-                mesh.draw();
-                ofPopMatrix();
-            easyCam.end();
-        largeOffscreenImage.end();
-        
-        ofPixels p;
-        largeOffscreenImage.readToPixels(p);
-        ofSaveImage(p, "exports/" + saveFile);
-        cout << "saved file: " << saveFile <<"\n" << endl;
-        
-        ofRectangle bounds(0, 0, ofGetWidth(), ofGetHeight());
-        ofRectangle target(0, 0, ofscreenW, ofscreenW);
-        target.scaleTo(bounds);
-        record = false;
-    
+        saveImg();
     }else{
         easyCam.begin();
-//        pointSize = ofMap(easyCam.getDistance(), maxZoom, minZoom, maxPointSize, 1, true);
         glPointSize(pointSliderVal);
             ofPushMatrix();
                 ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
@@ -100,30 +74,25 @@ void ofApp::draw(){
             ofPopMatrix();
         easyCam.end();
     }
-
-    //    if(record){
-    //        string filename = ofToString(counter);
-    //        cout << "recording frame " << counter << "\n" << endl;
-    //        ofSaveScreen(filename +".png");
-    //        counter++;
-    //    }
-    //
-    
     gui->draw();
-        
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
 }
 
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
+    if(key == ' '){
+        if(toggleSpace->getChecked()){
+            saveImg();
+        }
+    }
+    
 }
 
-//--------------------------------------------------------------
+//---------------------------CREATE MESH-----------------------------------
 void ofApp::createMesh(){
     mesh.clear();
     int w = img.getWidth();
@@ -142,7 +111,7 @@ void ofApp::createMesh(){
     numVerts = mesh.getNumVertices();
 }
 
-//--------------------------------------------------------------
+//------------------------UPDATE MESH--------------------------------------
 void ofApp::updateMesh(){
     float elevateValue;
     for (int i=0; i<numVerts; ++i) {
@@ -165,6 +134,66 @@ void ofApp::updateMesh(){
         vert.z = z;
         mesh.setVertex(i, vert);
     }
+}
+
+//------------------------FILE SELECTION--------------------------------------
+void ofApp::processOpenFileSelection(ofFileDialogResult openFileResult){
+    ofLogVerbose("getName(): "  + openFileResult.getName());
+    ofLogVerbose("getPath(): "  + openFileResult.getPath());
+    
+    ofFile file (openFileResult.getPath());
+    
+    if (file.exists()){
+    
+    ofLogVerbose("The file exists - now checking the type via file extension");
+    string fileExtension = ofToUpper(file.getExtension());
+    
+    //We only want images
+        if (fileExtension == "PNG" || fileExtension == "JPG" || fileExtension == "JPEG") {
+            ofLogVerbose("File could be loaded, it's a Picture!");
+            filename = openFileResult.getName();
+            img.load(openFileResult.getPath());
+            createMesh();
+        }
+    }
+    
+    labelImg->setLabel("Filename: " + ofToString(filename));
+    labelImgSize->setLabel("ImageSize: " + ofToString(img.getWidth()) + " x " + ofToString(img.getHeight()));
+    labelNum->setLabel("Number of Points: " + ofToString(numVerts));
+    
+}
+
+//------------------------SaveImg--------------------------------------
+void ofApp::saveImg(){
+    int saveWidth = ofToInt(inputWidth->getText());
+    int saveHeight = ofToInt(inputHeight->getText());
+    largeOffscreenImage.allocate(saveWidth, saveHeight, GL_RGBA);
+        
+        string saveFile = filename + "_" + "Zoom_" + ofToString(easyCam.getDistance()) + "_" + "Point_" + ofToString(pointSliderVal);
+    
+        largeOffscreenImage.begin();
+//            ofClear(bgColor);
+            easyCam.begin();
+                glPointSize(pointSliderVal*10); // needs work: point size to export size
+                ofPushMatrix();
+                ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
+                mesh.draw();
+                ofPopMatrix();
+            easyCam.end();
+        largeOffscreenImage.end();
+        
+        ofPixels p;
+        largeOffscreenImage.readToPixels(p);
+    
+        if(toggleJpg->getChecked()){
+            ofSaveImage(p, "exports/" + saveFile + ".jpg");
+        }
+        if(togglePng->getChecked()){
+            ofSaveImage(p, "exports/" + saveFile + ".png");
+        }
+        cout << "saved file: " << saveFile <<"\n" << endl;
+    
+        record = false;
 }
 
 //----------------------UI EVENTS----------------------------------------
@@ -230,32 +259,7 @@ void ofApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e){
     bgColor = e.color;
 }
 
-//--------------------------------------------------------------
-void ofApp::processOpenFileSelection(ofFileDialogResult openFileResult){
-    ofLogVerbose("getName(): "  + openFileResult.getName());
-    ofLogVerbose("getPath(): "  + openFileResult.getPath());
-    
-    ofFile file (openFileResult.getPath());
-    
-    if (file.exists()){
-    
-    ofLogVerbose("The file exists - now checking the type via file extension");
-    string fileExtension = ofToUpper(file.getExtension());
-    
-    //We only want images
-        if (fileExtension == "PNG" || fileExtension == "JPG" || fileExtension == "JPEG") {
-            ofLogVerbose("File could be loaded, it's a Picture!");
-            filename = openFileResult.getName();
-            img.load(openFileResult.getPath());
-            createMesh();
-        }
-    }
-    
-    labelImg->setLabel("Filename: " + ofToString(filename));
-    labelImgSize->setLabel("ImageSize: " + ofToString(img.getWidth()) + " x " + ofToString(img.getHeight()));
-    labelNum->setLabel("Number of Points: " + ofToString(numVerts));
-    
-}
+
 
 
 

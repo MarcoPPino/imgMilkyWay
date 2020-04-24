@@ -16,6 +16,7 @@ class ofApp : public ofBaseApp{
         void createMesh();
         void updateMesh();
         void processOpenFileSelection(ofFileDialogResult openFileResult);
+        void saveImg();
         
         void onButtonEvent(ofxDatGuiButtonEvent e);
         void onDropdownEvent(ofxDatGuiDropdownEvent e);
@@ -26,7 +27,6 @@ class ofApp : public ofBaseApp{
     ofxDatGui* gui = new ofxDatGui(0, 0);
     
     ofxDatGuiButton* buttonOpen;
-    ofxDatGuiButton* buttonSave;
     
     ofxDatGuiDropdown* elevateDropDown;
     ofxDatGuiDropdown* modeDropdown;
@@ -39,6 +39,14 @@ class ofApp : public ofBaseApp{
     ofxDatGuiLabel* labelImgSize;
     ofxDatGuiLabel* labelZ;
     ofxDatGuiLabel* labelNum;
+    
+    ofxDatGuiFolder* saveFolder;
+    ofxDatGuiTextInput* inputWidth;
+    ofxDatGuiTextInput* inputHeight;
+    ofxDatGuiToggle* toggleJpg;
+    ofxDatGuiToggle* togglePng;
+    ofxDatGuiToggle* toggleSpace;
+    ofxDatGuiButton* buttonSave;
     
     vector<string> ElevateOptions = {"Brightness", "Lightness", "Saturation"};
     vector<string> modeOptions = {"Points", "Triangles", "Triangle Strip", "Triangle Fan - Fucking Slow!", "Lines", "Line Strip", "Line Loop"};
