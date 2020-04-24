@@ -11,7 +11,13 @@ void ofApp::setup(){
     mesh.enableIndices();
     mesh.enableColors();
     
+    ofDisableAntiAliasing();
+    
+    
+    
     createMesh();
+    
+    
     
     //GUI------------------------------------------------------
     
@@ -41,6 +47,7 @@ void ofApp::setup(){
     toggleJpg->setChecked(true);
     togglePng = saveFolder->addToggle("Save as PNG");
     toggleSpace = saveFolder->addToggle("Use Spacebar to save");
+    toggleAA = saveFolder->addToggle("Anti Aliasing");
     buttonSave = gui->addButton("Save Image");
     
     buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
@@ -50,6 +57,9 @@ void ofApp::setup(){
     colorPickBg->onColorPickerEvent(this, &ofApp::onColorPickerEvent);
     depthSlider->onSliderEvent(this, &ofApp::onSliderEvent);
     pointSlider->onSliderEvent(this, &ofApp::onSliderEvent);
+    inputWidth->onTextInputEvent(this, &ofApp::onTextInputEvent);
+    inputHeight->onTextInputEvent(this, &ofApp::onTextInputEvent);
+    toggleAA->onToggleEvent(this, &ofApp::onToggleEvent);
     
     bgColor = ofColor(0,0,0);
 }
@@ -67,6 +77,8 @@ void ofApp::draw(){
         saveImg();
     }else{
         easyCam.begin();
+//        cout << "Position: " << ofToString(easyCam.getPosition()) << "\n" << endl;
+//        cout << "Orientation: " << ofToString(easyCam.getOrientationQuat()) << "\n" << endl;
         glPointSize(pointSliderVal);
             ofPushMatrix();
                 ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
@@ -148,7 +160,6 @@ void ofApp::processOpenFileSelection(ofFileDialogResult openFileResult){
     ofLogVerbose("The file exists - now checking the type via file extension");
     string fileExtension = ofToUpper(file.getExtension());
     
-    //We only want images
         if (fileExtension == "PNG" || fileExtension == "JPG" || fileExtension == "JPEG") {
             ofLogVerbose("File could be loaded, it's a Picture!");
             filename = openFileResult.getName();
@@ -168,13 +179,20 @@ void ofApp::saveImg(){
     int saveWidth = ofToInt(inputWidth->getText());
     int saveHeight = ofToInt(inputHeight->getText());
     largeOffscreenImage.allocate(saveWidth, saveHeight, GL_RGBA);
+    
+    int pointMultiply;
+    if(saveHeight > ofGetHeight()-1){ //-1 is a hack. do some searches
+        pointMultiply = saveHeight/1000;
+        cout<< ofToString(pointMultiply) << "\n" << endl;
+    }
+    
         
         string saveFile = filename + "_" + "Zoom_" + ofToString(easyCam.getDistance()) + "_" + "Point_" + ofToString(pointSliderVal);
     
         largeOffscreenImage.begin();
 //            ofClear(bgColor);
             easyCam.begin();
-                glPointSize(pointSliderVal*10); // needs work: point size to export size
+                glPointSize(pointSliderVal * pointMultiply); // needs work: point size to export size
                 ofPushMatrix();
                 ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
                 mesh.draw();
@@ -186,7 +204,7 @@ void ofApp::saveImg(){
         largeOffscreenImage.readToPixels(p);
     
         if(toggleJpg->getChecked()){
-            ofSaveImage(p, "exports/" + saveFile + ".jpg");
+            ofSaveImage(p, "exports/testexports/" + saveFile + ".jpg");
         }
         if(togglePng->getChecked()){
             ofSaveImage(p, "exports/" + saveFile + ".png");
@@ -259,6 +277,26 @@ void ofApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e){
     bgColor = e.color;
 }
 
+void ofApp::onToggleEvent(ofxDatGuiToggleEvent e){
+    if(!e.checked){
+        ofDisableAntiAliasing();
+    }else{
+        ofEnableAntiAliasing();
+    }
+}
+
+void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(e.target == inputWidth){
+        if(ofToInt(e.text) < ofGetWidth()){
+            inputWidth->setText(ofToString(ofGetWidth()));
+        }
+    }
+    if(e.target == inputHeight){
+        if(ofToInt(e.text) < ofGetHeight()){
+            inputHeight->setText(ofToString(ofGetHeight()));
+        }
+    }
+}
 
 
 

@@ -22,6 +22,8 @@ class ofApp : public ofBaseApp{
         void onDropdownEvent(ofxDatGuiDropdownEvent e);
         void onSliderEvent(ofxDatGuiSliderEvent e);
         void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
+        void onToggleEvent(ofxDatGuiToggleEvent e);
+    void onTextInputEvent(ofxDatGuiTextInputEvent e);
     
     
     ofxDatGui* gui = new ofxDatGui(0, 0);
@@ -46,6 +48,7 @@ class ofApp : public ofBaseApp{
     ofxDatGuiToggle* toggleJpg;
     ofxDatGuiToggle* togglePng;
     ofxDatGuiToggle* toggleSpace;
+    ofxDatGuiToggle* toggleAA;
     ofxDatGuiButton* buttonSave;
     
     vector<string> ElevateOptions = {"Brightness", "Lightness", "Saturation"};
