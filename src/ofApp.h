@@ -17,13 +17,13 @@ class ofApp : public ofBaseApp{
         void updateMesh();
         void processOpenFileSelection(ofFileDialogResult openFileResult);
         void saveImg();
-        
+        //------------------GUI stuff-------------------------
         void onButtonEvent(ofxDatGuiButtonEvent e);
         void onDropdownEvent(ofxDatGuiDropdownEvent e);
         void onSliderEvent(ofxDatGuiSliderEvent e);
         void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
         void onToggleEvent(ofxDatGuiToggleEvent e);
-    void onTextInputEvent(ofxDatGuiTextInputEvent e);
+        void onTextInputEvent(ofxDatGuiTextInputEvent e);
     
     
     ofxDatGui* gui = new ofxDatGui(0, 0);
@@ -45,50 +45,34 @@ class ofApp : public ofBaseApp{
     ofxDatGuiFolder* saveFolder;
     ofxDatGuiTextInput* inputWidth;
     ofxDatGuiTextInput* inputHeight;
+    ofxDatGuiDropdown* sizePicker;
     ofxDatGuiToggle* toggleJpg;
     ofxDatGuiToggle* togglePng;
     ofxDatGuiToggle* toggleSpace;
     ofxDatGuiToggle* toggleAA;
     ofxDatGuiButton* buttonSave;
     
+    int pointSliderVal = 1;
+    int depthSliderVal = 400;
+    int dropdownVal = 2;
     vector<string> ElevateOptions = {"Brightness", "Lightness", "Saturation"};
     vector<string> modeOptions = {"Points", "Triangles", "Triangle Strip", "Triangle Fan - Fucking Slow!", "Lines", "Line Strip", "Line Loop"};
-        
     
+    vector<string> SizeOptions = {"DIN A1" ,"DIN A2", "DIN A3", "DIN A4", "DIN A5", "DIN A6 (Postcard)", "10x10cm", "20x20cm", "30x30cm", "Instagram Post Square", "Instagram Post Portrait", "Instagram Post Landscape", "Instagram Stories"};
+
     
-    
-    
-    string filename;
-    
+    //------------------Viz-------------------------
     ofImage img;
     ofMesh mesh;
     ofEasyCam easyCam;
-    
     int numVerts;
-    int dropdownVal = 2;
-    string modeDropdownVal = "OF_PRIMITIVE_TRIANGLE_STRIP";
-    
-    
-    
-    //save old
-    bool record = false;
-    int counter = 0;
-    //-----------------
-    
-    //Save big
-    ofFbo largeOffscreenImage;
-    int ofscreenW, ofscreenH;
-    //-------------------------
-    
-    // darstelltung
-    int pointSliderVal = 1;
+    ofColor bgColor;
     
 
-    ofColor bgColor;
-    int depthSliderVal = 400;
-    
-    
-    
-    
+    //------------------saving-------------------------
+    string filename;
+    ofFbo largeOffscreenImage;
+    int counter = 0;
+    bool record = false;
 		
 };

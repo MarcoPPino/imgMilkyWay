@@ -13,8 +13,6 @@ void ofApp::setup(){
     
     ofDisableAntiAliasing();
     
-    
-    
     createMesh();
     
     
@@ -40,7 +38,7 @@ void ofApp::setup(){
     infoFolder->addFRM();
     gui->addBreak()->setHeight(15.0f);
     
-    saveFolder = gui->addFolder("Save Options", ofColor::white);
+    saveFolder = gui->addFolder("Export Options", ofColor::white);
     inputWidth = saveFolder->addTextInput("Width", "1920");
     inputHeight = saveFolder->addTextInput("Height", "1080");
     toggleJpg = saveFolder->addToggle("Save as JPEG");
@@ -48,6 +46,7 @@ void ofApp::setup(){
     togglePng = saveFolder->addToggle("Save as PNG");
     toggleSpace = saveFolder->addToggle("Use Spacebar to save");
     toggleAA = saveFolder->addToggle("Anti Aliasing");
+    sizePicker = gui->addDropdown("Export Sizes" , SizeOptions);
     buttonSave = gui->addButton("Save Image");
     
     buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
@@ -59,6 +58,7 @@ void ofApp::setup(){
     pointSlider->onSliderEvent(this, &ofApp::onSliderEvent);
     inputWidth->onTextInputEvent(this, &ofApp::onTextInputEvent);
     inputHeight->onTextInputEvent(this, &ofApp::onTextInputEvent);
+    sizePicker->onDropdownEvent(this, &ofApp::onDropdownEvent);
     toggleAA->onToggleEvent(this, &ofApp::onToggleEvent);
     
     bgColor = ofColor(0,0,0);
@@ -171,7 +171,7 @@ void ofApp::processOpenFileSelection(ofFileDialogResult openFileResult){
     labelImg->setLabel("Filename: " + ofToString(filename));
     labelImgSize->setLabel("ImageSize: " + ofToString(img.getWidth()) + " x " + ofToString(img.getHeight()));
     labelNum->setLabel("Number of Points: " + ofToString(numVerts));
-    
+    counter = 0;
 }
 
 //------------------------SaveImg--------------------------------------
@@ -179,39 +179,32 @@ void ofApp::saveImg(){
     int saveWidth = ofToInt(inputWidth->getText());
     int saveHeight = ofToInt(inputHeight->getText());
     largeOffscreenImage.allocate(saveWidth, saveHeight, GL_RGBA);
+
+    int pointMultiply = saveHeight / ofGetWidth();
+    string saveFile = filename + "_" + inputWidth->getText() + "x" + inputHeight->getText()+ "_" + ofToString(counter);
+
+    largeOffscreenImage.begin();
+        easyCam.begin();
+            glPointSize(pointSliderVal * pointMultiply); // needs work: point size to export size
+            ofPushMatrix();
+            ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
+            mesh.draw();
+            ofPopMatrix();
+        easyCam.end();
+    largeOffscreenImage.end();
     
-    int pointMultiply;
-    if(saveHeight > ofGetHeight()-1){ //-1 is a hack. do some searches
-        pointMultiply = saveHeight/1000;
-        cout<< ofToString(pointMultiply) << "\n" << endl;
+    ofPixels p;
+    largeOffscreenImage.readToPixels(p);
+
+    if(toggleJpg->getChecked()){
+        ofSaveImage(p, "exports/testexports/" + saveFile + ".jpg");
     }
-    
-        
-        string saveFile = filename + "_" + "Zoom_" + ofToString(easyCam.getDistance()) + "_" + "Point_" + ofToString(pointSliderVal);
-    
-        largeOffscreenImage.begin();
-//            ofClear(bgColor);
-            easyCam.begin();
-                glPointSize(pointSliderVal * pointMultiply); // needs work: point size to export size
-                ofPushMatrix();
-                ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
-                mesh.draw();
-                ofPopMatrix();
-            easyCam.end();
-        largeOffscreenImage.end();
-        
-        ofPixels p;
-        largeOffscreenImage.readToPixels(p);
-    
-        if(toggleJpg->getChecked()){
-            ofSaveImage(p, "exports/testexports/" + saveFile + ".jpg");
-        }
-        if(togglePng->getChecked()){
-            ofSaveImage(p, "exports/" + saveFile + ".png");
-        }
-        cout << "saved file: " << saveFile <<"\n" << endl;
-    
-        record = false;
+    if(togglePng->getChecked()){
+        ofSaveImage(p, "exports/" + saveFile + ".png");
+    }
+    cout << "saved file: " << saveFile <<"\n" << endl;
+    record = false;
+    counter++;
 }
 
 //----------------------UI EVENTS----------------------------------------
@@ -259,6 +252,60 @@ void ofApp::onDropdownEvent(ofxDatGuiDropdownEvent e){
             mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
         }
     }
+    if(e.target == sizePicker){
+        if(e.child == 0){
+            inputWidth->setText("7016");
+            inputHeight->setText("9933");
+        }
+        if(e.child == 1){
+            inputWidth->setText("4961");
+            inputHeight->setText("7016");
+        }
+        if(e.child == 2){
+            inputWidth->setText("3508");
+            inputHeight->setText("4961");
+        }
+        if(e.child == 3){
+            inputWidth->setText("2480");
+            inputHeight->setText("3508");
+        }
+        if(e.child == 4){
+            inputWidth->setText("1748");
+            inputHeight->setText("2480");
+        }
+        if(e.child == 5){
+            inputWidth->setText("1240");
+            inputHeight->setText("1748");
+        }
+        if(e.child == 6){
+            inputWidth->setText("1181");
+            inputHeight->setText("1181");
+        }
+        if(e.child == 7){
+            inputWidth->setText("2362");
+            inputHeight->setText("2362");
+        }
+        if(e.child == 8){
+            inputWidth->setText("3543");
+            inputHeight->setText("3543");
+        }
+        if(e.child == 9){
+            inputWidth->setText("1080");
+            inputHeight->setText("1080");
+        }
+        if(e.child == 10){
+            inputWidth->setText("1080");
+            inputHeight->setText("1350");
+        }
+        if(e.child == 11){
+            inputWidth->setText("1080");
+            inputHeight->setText("608");
+        }
+        if(e.child == 12){
+            inputWidth->setText("1080");
+            inputHeight->setText("1920");
+        }
+    }
 }
 
 vector<string> modeOptions = {"Points","Triangles", "Triangle Strip", "Triangle Fan", "Lines", "Line Strip", "Line Loop"};
@@ -286,16 +333,17 @@ void ofApp::onToggleEvent(ofxDatGuiToggleEvent e){
 }
 
 void ofApp::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputWidth){
-        if(ofToInt(e.text) < ofGetWidth()){
-            inputWidth->setText(ofToString(ofGetWidth()));
-        }
-    }
-    if(e.target == inputHeight){
-        if(ofToInt(e.text) < ofGetHeight()){
-            inputHeight->setText(ofToString(ofGetHeight()));
-        }
-    }
+//    if(e.target == inputWidth){
+//        if(ofToInt(e.text) < ofGetWidth()){
+//            inputWidth->setText(ofToString(ofGetWidth()));
+//        }
+//    }
+//    if(e.target == inputHeight){
+//        if(ofToInt(e.text) < ofGetHeight()){
+//            inputHeight->setText(ofToString(ofGetHeight()));
+//        }
+//    }
+//    counter = 0;
 }
 
 
