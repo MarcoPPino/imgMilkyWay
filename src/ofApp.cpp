@@ -4,22 +4,31 @@
 void ofApp::setup(){
     ofSetFrameRate(60);
     
-    filename = "t4.jpg";
-    img.load(filename);
+    string filenamePrepend = "vorlagen/";
+    filename = "scan1.jpg";
+    img.load(filenamePrepend+filename);
     
     mesh.setMode(OF_PRIMITIVE_POINTS);
     mesh.enableIndices();
     mesh.enableColors();
     
     ofDisableAntiAliasing();
-    
     createMesh();
     
     
     
     //GUI------------------------------------------------------
+    gui->setTheme(new ofxDatGuiThemeSmoke());
     
     buttonOpen = gui->addButton("Load Image");
+    infoFolder = gui->addFolder("Infos", ofColor::white);
+    labelImg = infoFolder->addLabel("Filename: " + ofToString(filename));
+    labelImgSize = infoFolder->addLabel("ImageSize: " + ofToString(img.getWidth()) + " x " + ofToString(img.getHeight()));
+    labelNum = infoFolder->addLabel("Number of Points: " + ofToString(numVerts));
+    labelZ = infoFolder->addLabel("Zoom: ");
+    infoFolder->addFRM();
+    gui->addBreak()->setHeight(15.0f);
+    
     gui->addBreak()->setHeight(15.0f);
     elevateDropDown = gui->addDropdown("Elevation mode: " , ElevateOptions);
     modeDropdown = gui->addDropdown("Point Connection mode: " , modeOptions);
@@ -30,13 +39,6 @@ void ofApp::setup(){
     gui->addBreak()->setHeight(10.0f);
     
     
-    infoFolder = gui->addFolder("Infos", ofColor::white);
-    labelImg = infoFolder->addLabel("Filename: " + ofToString(filename));
-    labelImgSize = infoFolder->addLabel("ImageSize: " + ofToString(img.getWidth()) + " x " + ofToString(img.getHeight()));
-    labelNum = infoFolder->addLabel("Number of Points: " + ofToString(numVerts));
-    labelZ = infoFolder->addLabel("Zoom: ");
-    infoFolder->addFRM();
-    gui->addBreak()->setHeight(15.0f);
     
     saveFolder = gui->addFolder("Export Options", ofColor::white);
     inputWidth = saveFolder->addTextInput("Width", "1920");
@@ -48,6 +50,7 @@ void ofApp::setup(){
     toggleAA = saveFolder->addToggle("Anti Aliasing");
     sizePicker = gui->addDropdown("Export Sizes" , SizeOptions);
     buttonSave = gui->addButton("Save Image");
+    gui->addFooter();
     
     buttonOpen->onButtonEvent(this, &ofApp::onButtonEvent);
     buttonSave->onButtonEvent(this, &ofApp::onButtonEvent);
@@ -77,8 +80,6 @@ void ofApp::draw(){
         saveImg();
     }else{
         easyCam.begin();
-//        cout << "Position: " << ofToString(easyCam.getPosition()) << "\n" << endl;
-//        cout << "Orientation: " << ofToString(easyCam.getOrientationQuat()) << "\n" << endl;
         glPointSize(pointSliderVal);
             ofPushMatrix();
                 ofTranslate(-img.getWidth()/2,-img.getHeight()/2);
@@ -101,7 +102,6 @@ void ofApp::keyReleased(int key){
             saveImg();
         }
     }
-    
 }
 
 //---------------------------CREATE MESH-----------------------------------
@@ -184,6 +184,7 @@ void ofApp::saveImg(){
     string saveFile = filename + "_" + inputWidth->getText() + "x" + inputHeight->getText()+ "_" + ofToString(counter);
 
     largeOffscreenImage.begin();
+    ofClear(bgColor);
         easyCam.begin();
             glPointSize(pointSliderVal * pointMultiply); // needs work: point size to export size
             ofPushMatrix();
@@ -197,7 +198,7 @@ void ofApp::saveImg(){
     largeOffscreenImage.readToPixels(p);
 
     if(toggleJpg->getChecked()){
-        ofSaveImage(p, "exports/testexports/" + saveFile + ".jpg");
+        ofSaveImage(p, "exports/" + saveFile + ".jpg");
     }
     if(togglePng->getChecked()){
         ofSaveImage(p, "exports/" + saveFile + ".png");
